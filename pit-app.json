@@ -1,0 +1,196 @@
+{
+  "name": "2019 Pit App",
+  "console": false,
+  "export": "",
+  "app": {
+    "Login": {
+      "Scout": {
+        "type": "login",
+        "options": {
+          "placeholder": "Input your ID here."
+        }
+      }
+    },
+    "General Info": {
+      "Weight": {
+        "type": "input",
+        "options": {
+          "placeholder": "125"
+        }
+      },
+      "Language": {
+        "type": "radio",
+        "options": {
+          "java": {
+            "value": "java"
+          },
+          "labview": {
+            "value": "labview"
+          },
+          "python": {
+            "value": "python"
+          },
+          "c++": {
+            "value": "c++"
+          },
+          "kotlin": {
+            "value": "kotlin"
+          },
+          "scratch": {
+            "value": "scratch"
+          },
+          "other": {
+            "value": "other"
+          }
+        }
+      }
+    },
+    "Sandstorm": {
+      "Technique": {
+        "type": "radio",
+        "options": {
+          "autonomous": {
+            "value": "auto"
+          },
+          "vision": {
+            "value": "vision"
+          },
+          "blind": {
+            "value": "blind"
+          },
+          "none": {
+            "value": "none"
+          }
+        }
+      },
+      "Cross Line": {
+        "type": "radio",
+        "options": {
+          "none": {
+            "value": "none"
+          },
+          "level 1": {
+            "value": "1"
+          },
+          "level 2": {
+            "value": "2"
+          }
+        }
+      }
+    },
+    "Capabilities": {
+      "Hatch": {
+        "type": "checkbox",
+        "options": {
+          "none": {
+            "value": "none"
+          },
+          "low": {
+            "value": "low"
+          },
+          "mid": {
+            "value": "mid"
+          },
+          "high": {
+            "value": "high"
+          }
+        }
+      },
+      "Cargo": {
+        "type": "checkbox",
+        "options": {
+          "none": {
+            "value": "none"
+          },
+          "low": {
+            "value": "low"
+          },
+          "mid": {
+            "value": "mid"
+          },
+          "high": {
+            "value": "high"
+          }
+        }
+      },
+      "Load Hatches": {
+        "type": "checkbox",
+        "options": {
+          "none": {
+            "value": "none"
+          },
+          "ground": {
+            "value": "ground"
+          },
+          "portal": {
+            "value": "portal"
+          }
+        }
+      },
+      "Load Cargo": {
+        "type": "checkbox",
+        "options": {
+          "none": {
+            "value": "none"
+          },
+          "ground": {
+            "value": "ground"
+          },
+          "portal": {
+            "value": "portal"
+          }
+        }
+      },
+      "Climb": {
+        "type": "checkbox",
+        "options": {
+          "level 1": {
+            "value": "1"
+          },
+          "level 2": {
+            "value": "2"
+          },
+          "level 3": {
+            "value": "3"
+          }
+        }
+      },
+      "Buddy Climb": {
+        "type": "radio",
+        "options": {
+          "none": {
+            "value": "none"
+          },
+          "one robot": {
+            "value": "1"
+          },
+          "two robots": {
+            "value": "2"
+          }
+        }
+      }
+    },
+    "Summation": {
+      "Primary Strategy": {
+        "type": "checkbox",
+        "options": {
+          "hatch": {
+            "value": "hatch"
+          },
+          "cargo": {
+            "value": "cargo"
+          },
+          "defense": {
+            "value": "defense"
+          }
+        }
+      },
+      "Notes": {
+        "type": "textarea",
+        "options": {
+          "placeholder": "Put any important information here."
+        }
+      }
+    }
+  }
+}
