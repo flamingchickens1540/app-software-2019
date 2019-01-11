@@ -7,3 +7,4 @@ Scouting and companal apps for 2019!
 - Analysis app
 - Notes app
 - Coach's app
+- Database app
