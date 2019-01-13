@@ -48,7 +48,7 @@
     },
     "Sandstorm": {
       "Technique": {
-        "type": "radio",
+        "type": "checkbox",
         "options": {
           "autonomous": {
             "value": "auto"
