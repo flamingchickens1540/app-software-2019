@@ -2,7 +2,7 @@
 {
   "name": "2019 Pit App",
   "console": false,
-  "export": "",
+  "export": "pit",
   "app": {
     "Login": {
       "Scout": {
