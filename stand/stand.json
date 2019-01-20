@@ -1,7 +1,7 @@
 {
   "name": "2019 Stand App",
   "console": true,
-  "export": "",
+  "export": "stand",
   "app": {
     "Stand": {
       "Login": {
