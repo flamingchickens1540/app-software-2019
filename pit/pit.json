@@ -86,6 +86,9 @@
           "none": {
             "value": "none"
           },
+          "ship": {
+            "value": "ship"
+          },
           "low": {
             "value": "low"
           },
@@ -102,6 +105,9 @@
         "options": {
           "none": {
             "value": "none"
+          },
+          "ship": {
+            "value": "ship"
           },
           "low": {
             "value": "low"
