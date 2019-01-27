@@ -50,7 +50,7 @@ function insertTeam(team) {
   `);
   // if ENTER BTN is pressed, switch to that team's page
   $(".team" + team).click(function() {
-    switchPages("team", team, 1)
+    switchPages("team", team, undefined, 1)
   });
   // this team is fully loaded, prepping sortTable()
   loaded_teams += 1;
@@ -290,6 +290,11 @@ function loadImportantFiles() {
   if (fs.existsSync("./resources/sensitive.txt")) {
     sensitive_info = (fs.readFileSync("./resources/sensitive.txt").toString() == 'true');
   }
+  // Initial color for drawing
+  if (fs.existsSync("./resources/draw-color.txt")) {
+    let color = fs.readFileSync("./resources/draw-color.txt").toString();
+    $(".canvas-color").val(color);
+  }
 }
 
 // exports stand data to CSV
@@ -515,28 +520,36 @@ let current_page = "home"
 let selected_team = undefined;
 
 // an array of arrays, representing a stack of all previous pages
-// inner arrays are ["page", "team"]
+// inner arrays are ["page", "team", "match"]
 let history = []
 
 // this function changes the page when a button is selected
 // team is the selected_team of that page
 // direction is positive if we are going forward through history
-function switchPages(new_page, team, direction) {
+function switchPages(new_page, team, match, direction) {
   window.scrollTo(0, 0); // sets the page scroll to its initial state
   $(".page").hide(); // hides all pages, but will show them again later in function
   $("#" + new_page).show(); // shows new page
-  if (direction > 0) { history.push([current_page, selected_team]); } // adds page to history if needed
+  if (direction > 0) { history.push([current_page, selected_team, drawing_match]); } // adds page to history if needed
   current_page = new_page;
   selected_team = team;
+  drawing_match = match;
   // showing/hiding the home/back buttons
   if (history.length == 0) { $(".back").hide(); }
   else { $(".back").show(); }
   if (current_page == "home") { $(".go-to-home").hide(); }
   else { $(".go-to-home").show(); }
-  // Team page and match page specifics
+  // Page specifics
   if (current_page == "team") {
     $(".team-title").text(team + " - " + team_id_to_name[team]);
     addData();
+  }
+  if (current_page == "drawing") {
+    if (match === undefined) { changeCanvasMatch(1); }
+    else { changeCanvasMatch(match); }
+  }
+  if (current_page == "drawing" && drawing_match === undefined) {
+    changeCanvasMatch()
   }
   if (current_page == "matches") {
     displayMatchesForTeam(selected_team);
@@ -679,7 +692,7 @@ function setupData() {
   createButton("pit", "Pit Data", ["question", "answer"], "btn-lg btn-danger", "#team-button-div");
   // creates view matches button
   $("#team-button-div").append(`
-    <button class="btn btn-lg btn-secondary" onclick="switchPages('matches', selected_team, 1)">View Matches</button>
+    <button class="btn btn-lg btn-secondary" onclick="switchPages('matches', selected_team, undefined, 1)">View Matches</button>
   `);
 }
 
@@ -1096,7 +1109,7 @@ function createMatch(loc, match_number, team) {
   // html to append to loc
   let append_html = `
     <div style="text-align:center">
-      <h3 class="match-header-` + match_number + `">` + match_number + `</h3>
+      <h3>` + match_number + `</h3>
       <div>`;
   // for each team in the match
   for (let team_index in schedule[match_number.toString()]) {
@@ -1115,15 +1128,18 @@ function createMatch(loc, match_number, team) {
     // create a new row for the btns for the blue alliance
     if (team_index == 2) { append_html += `</div><div>`; }
   }
-  append_html += `</div></div>`;
+  append_html += `</div>
+    <button style="margin-top:2px" class="btn btn-light predict-` + match_number + `">Predict</button>
+    <button style="margin-top:2px" class="btn btn-light draw-` + match_number + `">Draw &#8594</button>
+  </div>`;
   // actually adds the html
   $(loc).append(append_html);
   // makes the btn switch pages
   $(".match-team-btn-" + match_number).click(function() {
-    switchPages("team", $(this).text(), 1);
+    switchPages("team", $(this).text(), undefined, 1);
   });
   // look at the expected scores
-  $(".match-header-" + match_number).click(function() {
+  $(".predict-" + match_number).click(function() {
     let red_alliance = 0;
     let blue_alliance = 0;
     for (let team_index in schedule[match_number.toString()]) {
@@ -1141,6 +1157,10 @@ function createMatch(loc, match_number, team) {
     }
     // alerts expected scores
     alert("Red: " + red_alliance + "\nBlue: " + blue_alliance)
+  });
+  // go draw for the match
+  $(".draw-" + match_number).click(function() {
+    switchPages("drawing", undefined, match_number, 1);
   });
 }
 
@@ -1512,6 +1532,237 @@ function findAvailablePicklistID() {
 }
 
 /********************************************/
+/*               DRAWING PAGE               */
+/********************************************/
+
+// scale factor
+let scaleFactor;
+
+// array of arrays of xs, for each click/drag
+// e.g. [[5,3,4], [3], [1,5,7,9,3,6,5,5]]
+let xArray = [];
+// array of arrays of ys, for each click/drag
+let yArray = [];
+// array of colors, for each click/drag
+let colorArray = [];
+
+// match number
+let drawing_match = "1";
+
+// if you are dragging a box, this is the selected one
+let selected_box = undefined;
+// how far off from the top-left corner you selected the box;
+let selected_box_offset = [0, 0];
+
+// positions of all teams
+const defaultPositions = [
+  [767,156],
+  [715,210],
+  [767,265],
+  [15,157],
+  [15,265],
+  [70,211]
+];
+let boxPositions = copyArray(defaultPositions);
+
+// drawing: whether or not you are drawing
+// context: what we use to draws
+let drawing, context;
+
+// the field image
+let field_img = new Image();
+field_img.src = './resources/field.png';
+
+// resets EVERYTHING
+function reset_canvas() {
+  xArray = [];
+  yArray = [];
+  boxPositions = copyArray(defaultPositions);
+}
+
+// deletes the last drawing
+function undo_canvas() {
+  xArray.splice(-1, 1);
+  yArray.splice(-1, 1);
+}
+
+// draw that field
+function fieldDraw() {
+  context.drawImage(field_img, 0, 0);
+}
+
+
+// draws the new canvas
+function draw() {
+  context.lineJoin = "round";
+  context.lineWidth = 5;
+
+  // drawing paint
+  for (let index in xArray) {
+    // selects color of ".canvas-color"
+    context.strokeStyle = colorArray[index];
+    // lists of xVals and yVals for a given stroke
+    let x_values = xArray[index];
+    let y_values = yArray[index];
+    for (let index2 in x_values) {
+      // xVal and yVal are (x,y) coordinates
+      let xVal = x_values[index2];
+      let yVal = y_values[index2];
+      // beings path
+      context.beginPath();
+      // if this is not the first point in the stroke
+      if (index2 != 0) {
+        context.moveTo(x_values[index2 - 1], y_values[index2 - 1]);
+      } else {
+        context.moveTo(x_values[index2] - 1, y_values[index2]);
+      }
+      // moves line to next point
+      context.lineTo(x_values[index2], y_values[index2]);
+      // closes path
+      context.closePath();
+      // this draws it
+      context.stroke();
+    }
+  }
+
+  // a black color and thinner line
+  context.strokeStyle = "#000000";
+  context.lineWidth = 2;
+
+  // drawing boxes/teams
+  for (let box_index in boxPositions) {
+    // a given team's [x,y]
+    let boxPosition = boxPositions[box_index];
+    if (box_index <=2) {
+      // red
+      context.fillStyle = "#ff0000";
+    } else {
+      // blue
+      context.fillStyle = "#0061ff";
+    }
+    // fills a rect for the team
+    context.fillRect(boxPosition[0], boxPosition[1], 30, 30);
+    context.beginPath();
+    // draws a black line around team
+    context.rect(boxPosition[0], boxPosition[1], 30, 30);
+    // writes the team name
+    context.fillStyle = "#000000";
+    context.font = "11px Verdana";
+    context.fillText(schedule[drawing_match][box_index], boxPosition[0] + 1, boxPosition[1] + 18);
+    // draws the outline
+    context.closePath();
+    context.stroke();
+  }
+}
+
+// changes match number
+function changeCanvasMatch(match_number) {
+  $(".canvas-match-display").text("Match: " + match_number);
+  drawing_match = match_number;
+  draw();
+}
+
+$(window).on('resize', function() {
+  scaleFactor = $(document).width()*0.9 / 815;
+});
+
+// what happens with the canvas at start
+$(document).ready(function() {
+  // sets the context
+  context = document.getElementById('canvas').getContext("2d");
+  scaleFactor = $(document).width()*0.9 / 815;
+  // draws field and stuff
+  window.setTimeout(fieldDraw,5);
+  window.setTimeout(draw,10);
+
+  // when mouse is pressed down
+  $("#canvas").mousedown(function(e) {
+    // x and y coordinates
+    let mouseX = (e.pageX - this.offsetLeft) / scaleFactor;
+    let mouseY = (e.pageY - this.offsetTop) / scaleFactor;
+
+    // checks to see if point is in any box
+    for (let box_index in boxPositions) {
+      let boxX = boxPositions[box_index][0];
+      let boxY = boxPositions[box_index][1];
+      if (inbox(mouseX, mouseY, boxX, boxY, 30, 30)) {
+        selected_box = box_index;
+        selected_box_offset = [boxX - mouseX, boxY - mouseY];
+        break;
+      }
+    }
+
+    // if there is not a selected box
+    if (selected_box === undefined) {
+      drawing = true;
+
+      // adds stuff to the arrays
+      let newInnerXArray = [mouseX];
+      let newInnerYArray = [mouseY];
+      xArray.push(newInnerXArray);
+      yArray.push(newInnerYArray);
+      colorArray.push($(".canvas-color").val());
+      draw();
+    }
+  });
+
+  // when the mouse moves
+  $("#canvas").mousemove(function(e) {
+    // x and y coordinates
+    let mouseX = (e.pageX - this.offsetLeft) / scaleFactor;
+    let mouseY = (e.pageY - this.offsetTop) / scaleFactor;
+    // if we are drawing, add stuff to xArray and yArray
+    if (drawing) {
+      xArray[xArray.length - 1].push(mouseX);
+      yArray[yArray.length - 1].push(mouseY);
+      draw();
+    // otherwise, if we are moving a box, set the boxes' new coordinates
+    } else if (selected_box !== undefined) {
+      boxPositions[selected_box][0] = mouseX + selected_box_offset[0];
+      boxPositions[selected_box][1] = mouseY + selected_box_offset[1];
+      fieldDraw();
+      draw();
+    }
+  });
+  // the following stop the drawing
+  $('#canvas').mouseup(function(e){
+    drawing = false;
+    selected_box = undefined;
+    selected_box_offset = [0,0];
+  });
+  $('#canvas').mouseleave(function(e){
+    drawing = false;
+    selected_box = undefined;
+    selected_box_offset = [0,0];
+  });
+  // undo button
+  $(".undo-canvas").click(function() {
+    undo_canvas();
+    fieldDraw();
+    draw();
+  });
+  $(".erase-canvas").click(function() {
+    reset_canvas();
+    fieldDraw();
+    draw();
+  });
+  // saves a color file, so you can keep your color of choice
+  $(".canvas-color").change(function() {
+    fs.writeFileSync("./resources/draw-color.txt", $(this).val());
+  });
+  // submits the match to the canvas
+  $(".submit-match-to-canvas").click(function() {
+    let input_val = parseInt($(".canvas-match-input").val());
+    // confirms that the input is a correct match number
+    if (Number.isInteger(input_val) && input_val < Object.keys(schedule).length && input_val >= 0) {
+      changeCanvasMatch(input_val);
+      // clears input box
+      $(".canvas-match-input").val("");
+    }
+  });
+});
+
+/********************************************/
 /*                  MODALS                  */
 /********************************************/
 
@@ -1536,9 +1787,19 @@ function compareByMatch(a,b) {
   return parseInt(a["info"]["match"]) - parseInt(b["info"]["match"]);
 }
 
+// is a point in a box?
+function inbox(point_x, point_y, box_x, box_y, box_width, box_height) {
+  return (point_x >= box_x && point_x <= box_x + box_width && point_y >= box_y && point_y <= box_y + box_height);
+}
+
 // from https://stackoverflow.com/questions/1026069/how-do-i-make-the-first-letter-of-a-string-uppercase-in-javascript
 function capitalize(string) {
     return string.charAt(0).toUpperCase() + string.slice(1);
+}
+
+// copy array, because addresses
+function copyArray(array) {
+  return JSON.parse(JSON.stringify(array));
 }
 
 // rounds to nearest 100th
@@ -1580,7 +1841,7 @@ function onStart() {
   // loads manifests, scouts, schedule, etc.
   loadImportantFiles();
   // goes to the home page
-  switchPages("home", undefined, 0);
+  switchPages("home", undefined, undefined, 0);
   // determines a list of teams
   determineTeams();
   // uses list of teams to create "Teams" page
@@ -1667,24 +1928,24 @@ $(document).ready(function() {
   // a button on the home screen
   $(".home-btn").click(function() {
     let name = $(this).attr("name");
-    switchPages(name, undefined, 1);
+    switchPages(name, undefined, undefined, 1);
   });
   // go to home page
   $(".go-to-home").click(function() {
-    switchPages("home", undefined, 1);
+    switchPages("home", undefined, undefined, 1);
   });
   // go back one page
   $(".back").click(function() {
     let last_page = history.pop();
-    switchPages(last_page[0], last_page[1], -1);
+    switchPages(last_page[0], last_page[1], last_page[2], -1);
   });
   // view all matches
   $(".all-matches-btn").click(function() {
-    switchPages("matches", undefined, 1);
+    switchPages("matches", undefined, undefined, 1);
   });
   // view our matches
   $(".our-matches-btn").click(function() {
-    switchPages("matches", OUR_TEAM, 1);
+    switchPages("matches", OUR_TEAM, undefined, 1);
   });
   // add a picklist
   $(".add-picklist").click(createPicklist);
