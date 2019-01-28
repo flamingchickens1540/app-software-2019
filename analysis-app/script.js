@@ -533,7 +533,6 @@ function switchPages(new_page, team, match, direction) {
   if (direction > 0) { history.push([current_page, selected_team, drawing_match]); } // adds page to history if needed
   current_page = new_page;
   selected_team = team;
-  drawing_match = match;
   // showing/hiding the home/back buttons
   if (history.length == 0) { $(".back").hide(); }
   else { $(".back").show(); }
@@ -545,11 +544,8 @@ function switchPages(new_page, team, match, direction) {
     addData();
   }
   if (current_page == "drawing") {
-    if (match === undefined) { changeCanvasMatch(1); }
+    if (match === undefined) { changeCanvasMatch("1"); }
     else { changeCanvasMatch(match); }
-  }
-  if (current_page == "drawing" && drawing_match === undefined) {
-    changeCanvasMatch()
   }
   if (current_page == "matches") {
     displayMatchesForTeam(selected_team);
@@ -1430,7 +1426,7 @@ function createPicklistTable(index) {
   $(".picklist-del-team-" + index).click(function() {
     let team_num = $(this).attr("team");
     // deletes team from picklist
-    deleteTeamFromPicklist(picklist_index, team_num);
+    deleteTeamFromPicklist(index, team_num);
   });
   // triggers when enter key is pressed and input is selected
   $('.picklist-input-' + index).keypress(function (e) {
@@ -1594,6 +1590,7 @@ function fieldDraw() {
 
 // draws the new canvas
 function draw() {
+  console.log(drawing_match);
   context.lineJoin = "round";
   context.lineWidth = 5;
 
@@ -1674,6 +1671,8 @@ $(document).ready(function() {
   // draws field and stuff
   window.setTimeout(fieldDraw,5);
   window.setTimeout(draw,10);
+
+  console.log(drawing_match);
 
   // when mouse is pressed down
   $("#canvas").mousedown(function(e) {
