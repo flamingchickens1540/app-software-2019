@@ -489,12 +489,23 @@ function insertTeamsWithTBA() {
 
 // gets images for all robots
 function getImages() {
+  alert("Page will reload once images are finished loading");
   // runs 1540photo.py, which collects images from Gmail
   exec("python 1540photo.py");
   loaded_images_from_tba = 0;
   // for each team, loads media
   for (let team_id in teams) {
     loadMediaFromTBA(teams[team_id]);
+  }
+  // gets local files
+  let local_dir = fs.readdirSync("./data/images/");
+  for (let team_id in local_dir) {
+    try {
+      let file = local_dir[team_id];
+      if (manifest_images.indexOf(file) < 0) {
+        manifest_images.push(file);
+      }
+    } catch (_) {}
   }
   // checks to see if all images are loaded, and saves a manifest if true
   window.setInterval(saveImageManifest, 3000);
@@ -1573,6 +1584,7 @@ field_img.src = './resources/field.png';
 function reset_canvas() {
   xArray = [];
   yArray = [];
+  colorArray = [];
   boxPositions = copyArray(defaultPositions);
 }
 
@@ -1580,6 +1592,7 @@ function reset_canvas() {
 function undo_canvas() {
   xArray.splice(-1, 1);
   yArray.splice(-1, 1);
+  colorArray.splice(-1, 1);
 }
 
 // draw that field
@@ -1590,7 +1603,6 @@ function fieldDraw() {
 
 // draws the new canvas
 function draw() {
-  console.log(drawing_match);
   context.lineJoin = "round";
   context.lineWidth = 5;
 
@@ -1671,8 +1683,6 @@ $(document).ready(function() {
   // draws field and stuff
   window.setTimeout(fieldDraw,5);
   window.setTimeout(draw,10);
-
-  console.log(drawing_match);
 
   // when mouse is pressed down
   $("#canvas").mousedown(function(e) {
