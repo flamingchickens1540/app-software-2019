@@ -19,6 +19,12 @@
           "placeholder": "125"
         }
       },
+      "Cameras": {
+        "type": "input",
+        "options": {
+          "placeholder": "Please briefly describe what cameras you have, if any, on the robot and what they help you accomplish."
+        }
+      },
       "Language": {
         "type": "radio",
         "options": {
