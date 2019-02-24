@@ -2,6 +2,8 @@
 window.$ = window.jQuery = require("jquery");
 const fs = require("fs");
 
+create();
+
 // current match
 let match = fs.readFileSync("match.txt").toString();
 
@@ -30,6 +32,22 @@ function createTextArea(loc, alliance) {
     <label for="text-area-` + loc + `">` + this_match[loc] + `</label>
     <input class="` + alliance + ` ` + `form-control textarea" id="text-area-` + loc + `"type="textarea" />
   `);
+}
+
+// for creating the app
+function create() {
+  if (!fs.existsSync("./data")) {
+    fs.mkdirSync("./data");
+  }
+  if (!fs.existsSync("./data/manifest.json")) {
+    fs.writeFileSync("./data/manifest.json", "[]");
+  }
+  if (!fs.existsSync("./match.txt")) {
+    fs.writeFileSync("./match.txt", "1");
+  }
+  if (!fs.existsSync("./schedule.json")) {
+    alert("Please create a schedule.json file!")
+  }
 }
 
 $(document).ready(function() {
