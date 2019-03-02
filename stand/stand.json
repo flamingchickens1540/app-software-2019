@@ -91,15 +91,7 @@
         }
       },
       "Played Defense": {
-        "type": "checkbox",
-        "options": {
-          "yes": {
-            "value": "yes"
-          },
-          "no": {
-            "value": "no"
-          }
-        }
+        "type": "YesNo"
       },
       "Hatch Ship": {
         "type": "counter",
@@ -114,15 +106,7 @@
         }
       },
       "Faced Defense": {
-        "type": "radio",
-        "options": {
-          "yes": {
-            "value": "yes"
-          },
-          "no": {
-            "value": "no"
-          }
-        }
+        "type": "YesNo"
       }
     },
     "Endgame": {
