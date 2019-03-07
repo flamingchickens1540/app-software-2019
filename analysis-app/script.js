@@ -1932,6 +1932,9 @@ $(document).ready(function() {
     fs.copySync("./data-empty", "./data");
     window.location.reload();
   });
+  $(".export-as-folder").click(function() {
+    fs.copySync("./data", "/Volumes/1540/companal/exports");
+  });
   // exports data to CSV
   $(".export-data").click(exportDataToCSV);
   // a button on the home screen
