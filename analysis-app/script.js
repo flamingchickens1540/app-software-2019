@@ -10,7 +10,7 @@ const exec = require("child_process").execSync; // lets us run stuff from termin
 const OUR_TEAM = "1540"; // put your team number here!
 
 // the year of this game
-const year = 2018;
+const year = 2019;
 
 // the competition
 const comp = "2019 Wilsonville";

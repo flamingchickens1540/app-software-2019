@@ -85,8 +85,9 @@ $(document).ready(function() {
   });
   // export to a flashdrive "/Volumes/1540", "D:/1540", "C:/1540", "G:/1540", or "K:/1540"
   $(".export").click(function() {
+    console.log("you rock")
     // list of possible paths for the flashdrive
-    const path_list = ["/Volumes/1540/scouting/notes/", "K:/1540/scouting/notes/", "D:/1540/scouting/notes/", "G:/1540/scouting/notes/", "C:/1540/scouting/notes/"];
+    const path_list = ["/Volumes/1540/companal/notes/", "K:/companal/notes/", "D:/companal/notes/", "G:/companal/notes/", "C:/companal/notes/"];
     // tries each path
     for (let path_index in path_list) {
       let path = path_list[path_index];
@@ -100,13 +101,13 @@ $(document).ready(function() {
         // loops through each file in local manifest
         for (let local_file_index in manifest) {
           // if local file exists on flash, go to next local file
-          if (!fs.existsSync(manifest[local_file_index])) {
+          if (!fs.existsSync("./data/" + manifest[local_file_index])) {
             continue;
           }
           // writes local file to flashdrive
           let local_file_name = manifest[local_file_index];
-          let local_file = fs.readFileSync(local_file_name);
-          fs.writeFileSync(path + local_file_name);
+          let local_file = fs.readFileSync("./data/" + local_file_name);
+          fs.writeFileSync(path + local_file_name, local_file);
           if (flash_manifest.indexOf(local_file_name) < 0) {
             flash_manifest.push(local_file_name);
           }
