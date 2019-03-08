@@ -1928,7 +1928,9 @@ $(document).ready(function() {
   // clears data and moves to storage
   // USE AT YOUR OWN RISK
   $(".clear-data").click(function() {
+    fs.removeSync("./data-storage/" + comp);
     fs.copySync("./data", "./data-storage/" + comp);
+    fs.removeSync("./data");
     fs.copySync("./data-empty", "./data");
     window.location.reload();
   });
