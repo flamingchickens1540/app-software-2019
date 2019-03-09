@@ -123,6 +123,7 @@ function loadStandData() {
     if (fs.existsSync("./data/stand/" + file_name)) {
       let data_point = JSON.parse(fs.readFileSync("./data/stand/" + file_name));
       // if no one logged in, we don't want the data point
+      // console.log(data_point);
       if (data_point["Stand"]["Login"] == undefined) {
         continue;
       }
@@ -599,13 +600,13 @@ function calculateScore(match) {
   }
   score += climb_score;
   // hatch
-  let hatch_vals = ["Hatch Low", "Hatch Mid", "Hatch High"];
+  let hatch_vals = ["Hatch Ship", "Hatch Low", "Hatch Mid", "Hatch High"];
   for (let i in hatch_vals) {
     score += (parseInt(match["Teleop"][hatch_vals[i]]) * 2);
 
   }
   // cargo
-  let cargo_vals = ["Cargo Low", "Cargo Mid", "Cargo High"];
+  let cargo_vals = ["Cargo Ship", "Cargo Low", "Cargo Mid", "Cargo High"];
   for (let i in cargo_vals) {
     score += (parseInt(match["Teleop"][cargo_vals[i]]) * 3);
   }
@@ -616,7 +617,7 @@ function calculateScore(match) {
 // type is either Hatch or Cargo
 function calculateNumGamePieces(match, type) {
   // game_piece_vals is all the questions we check from the data point
-  let game_piece_vals = [type + " Low", type + " Mid", type + " High"];
+  let game_piece_vals = [type + " Ship", type + " Low", type + " Mid", type + " High"];
   let num_pieces = 0;
   for (let i in game_piece_vals) {
     num_pieces += parseInt(match["Teleop"][game_piece_vals[i]]);
@@ -653,8 +654,8 @@ const table_values = ["Cross", "Hatch", "Cargo", "Stop"];
 // all the buttons that appear above the team's table, and the title of each column of their modals
 // game specific
 const button_values = {
-  "hatch": ["match", "low", "mid", "high", "total", "dropped"],
-  "cargo": ["match", "low", "mid", "high", "total", "dropped"],
+  "hatch": ["match", "ship", "low", "mid", "high", "total", "dropped"],
+  "cargo": ["match", "ship", "low", "mid", "high", "total", "dropped"],
   "climb": ["match", "level", "assistance"],
   "defense": ["match", "played", "against"]
 }
@@ -730,13 +731,14 @@ function addStandDataToPage() {
   // loops through each match
   for (let match_id in stand_data[selected_team]) {
     let match = stand_data[selected_team][match_id];
+    console.log(match);
     // the HTML which will be appended to the <tbody>
     let append_html = `<tr><td>` + match["info"]["match"] + `</td>`;
     if (match["Stand"]["Login"] !== undefined) {
       // adds the scout name to the large table
       append_html += `<td class="scout-td">` + scouts[match["Stand"]["Login"]] +`</td>`;
     } else {
-      continue; // if there is no scout, the data is discarded (gasp)
+      // continue; // if there is no scout, the data is discarded (gasp)
     }
     // for each value that is supposed to appear in the table (see table_values)
     for (let value in table_values) {
@@ -751,11 +753,11 @@ function addStandDataToPage() {
           break;
         // totals up all hatch values
         case "Hatch":
-          display = parseInt(match["Teleop"]["Hatch Low"]) + parseInt(match["Teleop"]["Hatch Mid"]) + parseInt(match["Teleop"]["Hatch High"]);
+          display = parseInt(match["Teleop"]["Hatch Ship"]) + parseInt(match["Teleop"]["Hatch Low"]) + parseInt(match["Teleop"]["Hatch Mid"]) + parseInt(match["Teleop"]["Hatch High"]);
           break;
         // totals up all cargo values
         case "Cargo":
-          display = parseInt(match["Teleop"]["Cargo Low"]) + parseInt(match["Teleop"]["Cargo Mid"]) + parseInt(match["Teleop"]["Cargo High"]);
+          display = parseInt(match["Teleop"]["Cargo Ship"]) + parseInt(match["Teleop"]["Cargo Low"]) + parseInt(match["Teleop"]["Cargo Mid"]) + parseInt(match["Teleop"]["Cargo High"]);
           break;
         case "Stop":
           display = match["Notes"]["Stopped"];
@@ -778,11 +780,12 @@ function addStandDataToPage() {
           // adds data to hatch button
           addButtonData(btn_title, match["info"]["match"], [
             function() { return match["info"]["match"]; },
+            function() { return match["Teleop"]["Hatch Ship"]; },
             function() { return match["Teleop"]["Hatch Low"]; },
             function() { return match["Teleop"]["Hatch Mid"]; },
             function() { return match["Teleop"]["Hatch High"]; },
             function() {
-              return match["Teleop"]["Hatch Low"] + match["Teleop"]["Hatch Mid"] + match["Teleop"]["Hatch High"];
+              return match["Teleop"]["Hatch Ship"] + match["Teleop"]["Hatch Low"] + match["Teleop"]["Hatch Mid"] + match["Teleop"]["Hatch High"];
             },
             function() { return match["Teleop"]["Dropped Hatch"]; }
           ]);
@@ -792,11 +795,12 @@ function addStandDataToPage() {
           // adds data to cargo butotn
           addButtonData(btn_title, match["info"]["match"], [
             function() { return match["info"]["match"]; },
+            function() { return match["Teleop"]["Cargo Ship"]; },
             function() { return match["Teleop"]["Cargo Low"]; },
             function() { return match["Teleop"]["Cargo Mid"]; },
             function() { return match["Teleop"]["Cargo High"]; },
             function() {
-              return match["Teleop"]["Cargo Low"] + match["Teleop"]["Cargo Mid"] + match["Teleop"]["Cargo High"];
+              return match["Teleop"]["Cargo Ship"] + match["Teleop"]["Cargo Low"] + match["Teleop"]["Cargo Mid"] + match["Teleop"]["Cargo High"];
             },
             function() { return match["Teleop"]["Dropped Cargo"]; }
           ]);
@@ -895,7 +899,7 @@ function addNotesToPage() {
     // data_point is new notes to add
     let data_point = notes_data[selected_team][data_point_index];
     // adds a new line
-    $("#notes-" + selected_team + "-" + data_point[1]).append("<br>" + data_point[0]);
+    $("#notes-" + selected_team + "-" + data_point[1]).prepend('<h4>Stand app:</h4>').append("<br><hr><h4>Notes app:</h4>" + data_point[0]);
   }
 }
 
