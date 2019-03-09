@@ -141,6 +141,7 @@ th {
   max-height:100%;
   height: auto;
   width: 90%;
+  cursor: pointer;
 }
 
 .canvas-color {
