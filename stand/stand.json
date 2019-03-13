@@ -183,6 +183,9 @@
           "no show": {
             "value": "noshow"
           },
+          "fell over": {
+            "value": "fell"
+          },
           "other/idk": {
             "value": "other"
           }

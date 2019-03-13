@@ -22,8 +22,8 @@
     "Cargo Ship": 0,
     "Dropped Hatch": 0,
     "Dropped Cargo": 0,
-    "Played Defense": "false",
-    "Faced Defense": "false"
+    "Played Defense": "no",
+    "Faced Defense": "no"
   },
   "Endgame": {
     "Platform": "none",
@@ -31,6 +31,6 @@
   },
   "Notes": {
     "Notes": "",
-    "Stopped": "none"
+    "Stopped": "n/a"
   }
 }
