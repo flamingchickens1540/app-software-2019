@@ -13,7 +13,7 @@ const OUR_TEAM = "1540"; // put your team number here!
 const year = 2019;
 
 // the competition
-const comp = "2019 Wilsonville";
+const comp = "2019 Clackamas Academy";
 
 // are photos currently visible?
 let photos = false;
