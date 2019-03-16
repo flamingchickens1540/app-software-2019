@@ -183,7 +183,7 @@
         }
       }
     },
-    "Summation": {
+    "Summary": {
       "Primary Strategy": {
         "type": "checkbox",
         "options": {
