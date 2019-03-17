@@ -198,6 +198,29 @@
           }
         }
       },
+      "Drivetrain Type": {
+        "type": "checkbox",
+        "options": {
+          "tank": {
+            "value": "tank"
+          },
+          "swerve": {
+            "value": "swerve"
+          },
+          "mecanum": {
+            "value": "mecanum"
+          },
+          "other": {
+            "value": "other"
+          }
+        }
+      },
+      "Motors": {
+        "type": "input",
+        "options": {
+          "placeholder": "cims, 775 pros, etc. Also have number as well."
+        }
+      },
       "Notes": {
         "type": "textarea",
         "options": {
