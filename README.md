@@ -6,5 +6,3 @@ Scouting and companal apps for 2019!
 - Pit scouting app
 - Analysis app
 - Notes app
-- Coach's app
-- Database app
