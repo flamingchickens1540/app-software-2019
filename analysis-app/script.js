@@ -1980,4 +1980,23 @@ $(document).ready(function() {
   });
   // does the things that must be done at the start
   onStart();
+
+  // Listener to team search
+  $('.team-search').change(function () {
+    let teams = JSON.parse(fs.readFileSync('./resources/teams.json', 'utf8'));
+    if (isNaN(parseInt($(this).val()))) {
+      // Is a team name
+      for (const number in teams) {
+      	if (teams.hasOwnProperty(number)) {
+      	  console.log(teams[number], $(this).val());
+      	  if ($(this).val().toLowerCase() === teams[number].toLowerCase()) {
+            switchPages("team", number, undefined, 1);
+      	  }
+      	}
+      }
+    } else {
+      // Is a team number
+      switchPages("team", parseInt($(this).val()), undefined, 1);
+    }
+  });
 });
