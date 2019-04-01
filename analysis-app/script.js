@@ -248,7 +248,7 @@ let defaultStandJSON = {}
 // match schedule
 let schedule = {};
 // scouts on the team
-let scouts = [];
+let scouts = {};
 
 // whether or not sensitive_info should be displayed
 let sensitive_info = true;
@@ -1110,6 +1110,43 @@ function sortTable() {
 }
 
 /********************************************/
+/*               SCOUTS PAGE                */
+/********************************************/
+
+// adds scout to table if it isn't there yet
+function addScoutToTable(scout_name, scout_id) {
+  $(".scout-list-table").append(`
+    <tr>
+      <td>` + scout_name + `</td>
+      <td class=matches-` + scout_id + `>1</td>
+    </tr>
+  `);
+}
+
+function populateScouts() {
+  let stand_keys = Object.keys(stand_data);
+  for (let team_id in stand_keys) {
+    let team = stand_keys[team_id];
+    for (let data_id in stand_data[team]) {
+      let data_point = stand_data[team][data_id];
+      let scout_id = data_point["Stand"]["Login"];
+      // is the scout actually real?
+      if (scout_id !== undefined && scouts[scout_id] !== undefined) {
+        // class already exists
+        if ($(".matches-" + scout_id)[0]) {
+          let current_total = parseInt($(".matches-" + scout_id).text());
+          current_total += 1;
+          $(".matches-" + scout_id).text(current_total);
+        // class doesn't exist
+        } else {
+          addScoutToTable(scouts[scout_id], scout_id);
+        }
+      }
+    }
+  }
+}
+
+/********************************************/
 /*                MATCH PAGE                */
 /********************************************/
 
@@ -1871,6 +1908,8 @@ function onStart() {
   displaySensitiveInfo();
   // hides the "Team" page carousel
   $("#myCarousel").hide();
+  // puts scouts on Scouts page
+  populateScouts();
 }
 
 // shows/hides sensitive info
