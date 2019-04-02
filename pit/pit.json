@@ -218,7 +218,7 @@
       "Motors": {
         "type": "input",
         "options": {
-          "placeholder": "cims, 775 pros, etc. Also have number as well."
+          "placeholder": "cims, 775 pros, etc. Also have quantity as well."
         }
       },
       "Notes": {
