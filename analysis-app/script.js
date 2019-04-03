@@ -13,7 +13,7 @@ const OUR_TEAM = "1540"; // put your team number here!
 const year = 2019;
 
 // the competition
-const comp = "2019 Clackamas Academy";
+const comp = "2019 Pacific Northwest FIRST District Championship";
 
 // are photos currently visible?
 let photos = false;
@@ -1986,6 +1986,10 @@ $(document).ready(function() {
   $(".home-btn").click(function() {
     let name = $(this).attr("name");
     switchPages(name, undefined, undefined, 1);
+  });
+  // view scouts
+  $(".view-scouts").click(function() {
+    switchPages("scouts", undefined, undefined, 1);
   });
   // go to home page
   $(".go-to-home").click(function() {
