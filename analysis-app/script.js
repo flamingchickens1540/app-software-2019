@@ -5,6 +5,7 @@
 
 window.$ = window.jQuery = require("jquery");
 const fs = require("fs-extra");
+const Fuse = require('fuse.js');
 
 const exec = require("child_process").execSync; // lets us run stuff from terminal
 const OUR_TEAM = "1540"; // put your team number here!
@@ -2133,20 +2134,30 @@ $(document).ready(function() {
   onStart();
 
   // Listener to team search
-  $('.team-search').change(function () {
+  (() => {
     let teams = JSON.parse(fs.readFileSync('./resources/teams.json', 'utf8'));
-    if (isNaN(parseInt($(this).val()))) {
-      // Is a team name
-      for (const number in teams) {
-      	if (teams.hasOwnProperty(number)) {
-      	  if ($(this).val().toLowerCase() === teams[number].toLowerCase()) {
-            switchPages("team", number, undefined, 1);
-      	  }
-      	}
+    let list = [];
+    for (const number in teams) {
+      if (teams.hasOwnProperty(number)) {
+        list.push({ team: number, name: teams[number] });
       }
-    } else {
-      // Is a team number
-      switchPages("team", parseInt($(this).val()), undefined, 1);
     }
-  });
+    let options = {
+      shouldSort: true,
+      threshold: 0.3,
+      location: 0,
+      distance: 100,
+      maxPatternLength: 32,
+      minMatchCharLength: 1,
+      keys: [
+        'team',
+        'name'
+      ]
+    };
+    let fuse = new Fuse(list, options);
+    $('.team-search').change(function () {
+      switchPages('team', fuse.search($(this).val())[0].team, undefined, 1);
+      $(this).val('');
+    });
+  })();
 });
