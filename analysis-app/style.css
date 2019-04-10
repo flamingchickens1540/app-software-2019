@@ -154,3 +154,27 @@ th {
   height: auto;
   width: auto\9; /* ie8 */
 }
+
+.btn-secondary:hover, .btn-secondary:focus {
+  color: white;
+}
+
+.btn-purple {
+  background-color: #aa66cc;
+  color:white;
+}
+.btn-purple:hover,
+.btn-purple:focus {
+  color: white;
+  background-color: #9933CC;
+}
+
+.btn-moss {
+  background-color: #a1887f;
+  color: white;
+}
+.btn-moss:hover,
+.btn-moss:focus {
+  color: white;
+  background-color: #795548;
+}

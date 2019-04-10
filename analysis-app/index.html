@@ -22,14 +22,17 @@
       <br />
       <br />
       <div class = "row">
-        <div class = "col-sm-4">
+        <div class = "col-sm-3">
           <button name="teams" class="btn btn-lg btn-primary home-btn">Teams</button>
         </div>
-        <div class = "col-sm-4">
+        <div class = "col-sm-3">
           <button name="match-selection" class="btn btn-lg btn-warning home-btn">Matches</button>
         </div>
-        <div class = "col-sm-4">
+        <div class = "col-sm-3">
           <button name="statistics" class="btn btn-lg btn-success home-btn">Statistics</button>
+        </div>
+        <div class = "col-sm-3">
+          <button name="rankings" class="btn btn-lg btn-purple home-btn">Rankings</button>
         </div>
       </div>
       <br />
@@ -39,14 +42,17 @@
       <br />
       <br />
       <div class = "row">
-        <div class = "col-sm-4">
-          <button name="picklist" class="btn btn-lg btn-danger home-btn">Picklist</button>
+        <div class = "col-sm-3">
+          <button name="picklist" class="btn btn-lg btn-moss home-btn">Picklist</button>
         </div>
-        <div class = "col-sm-4">
+        <div class = "col-sm-3">
           <button name="drawing" class="btn btn-lg btn-info home-btn">Drawing</button>
         </div>
-        <div class = "col-sm-4">
+        <div class = "col-sm-3">
           <button name="pit-layout" class="btn btn-lg btn-secondary home-btn">Pit Layout</button>
+        </div>
+        <div class = "col-sm-3">
+          <button name="scouts" class="btn btn-lg btn-danger home-btn">Scouts</button>
         </div>
       </div>
     </div>
@@ -78,6 +84,24 @@
           <th>Scout</th>
           <th>Matches Scouted</th>
         </tr>
+      </table>
+    </div>
+    <!-- rankings page -->
+    <div style = "display:none" id = "rankings" class = "page component">
+      <h3 class="margin-above">Rankings</h3>
+      <br />
+      <table style="text-align:center;width:80%;position:relative;left:10%;" class="table table-striped">
+        <thead class="thead-dark">
+          <tr>
+            <th>Rank</th>
+            <th>Hatch</th>
+            <th>Cargo</th>
+            <th>Total Pieces</th>
+            <th>% Defense</th>
+          </tr>
+        </thead>
+        <tbody class="team-rankings-table">
+        </tbody>
       </table>
     </div>
     <!-- team page -->
@@ -250,7 +274,6 @@
         <a class="export-as-folder dropdown-item" href="#">Export Data to Flash</a>
         <div class="dropdown-divider"></div>
         <h6 style="color:red" class="dropdown-header">Miscellaneous</h6>
-        <a class="view-scouts dropdown-item" href="#">View Scouts</a>
         <a class="clear-data dropdown-item" href="#">Store & Clear Data</a>
         <a class="download-external-photos dropdown-item" href="#">Download External Photos</a>
       </div>

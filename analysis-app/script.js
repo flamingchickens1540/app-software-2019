@@ -121,9 +121,15 @@ function loadStandData() {
   for (let data_id in manifest_stand) {
     let file_name = manifest_stand[data_id]; // e.g. m1-r1-1540.json
     if (fs.existsSync("./data/stand/" + file_name)) {
-      let data_point = JSON.parse(fs.readFileSync("./data/stand/" + file_name));
+      let data_point = fs.readFileSync("./data/stand/" + file_name);
+      // Parses the data
+      try {
+        data_point = JSON.parse(data_point);
+      } catch(e) {
+        // if the data point isn't a valid JSON file, moves on
+        continue;
+      }
       // if no one logged in, we don't want the data point
-      // console.log(data_point);
       if (data_point["Stand"]["Login"] == undefined) {
         continue;
       }
@@ -154,7 +160,7 @@ function loadPitData() {
       let data_point = JSON.parse(fs.readFileSync("./data/pit/" + file_name));
       let team_name = data_point["info"]["team"];
       // sets defaults if values are non-existent
-      setDefaultsForPit(data_point);
+      // setDefaultsForPit(data_point);
       // adds data point to pit_data
       pit_data[team_name] = data_point;
     }
@@ -195,7 +201,7 @@ function loadNotesData() {
         let team_name = schedule[dp_match][team_index];
         // if this is first data point recorded for this team
         if (notes_data[team_name] === undefined) { notes_data[team_name] = []; }
-        notes_data[team_name].push([data_point[team_index.toString()], data_point["match"]]);
+        notes_data[team_name].push([data_point[team_index.toString()], dp_match]);
       }
     }
   }
@@ -731,7 +737,6 @@ function addStandDataToPage() {
   // loops through each match
   for (let match_id in stand_data[selected_team]) {
     let match = stand_data[selected_team][match_id];
-    console.log(match);
     // the HTML which will be appended to the <tbody>
     let append_html = `<tr><td>` + match["info"]["match"] + `</td>`;
     if (match["Stand"]["Login"] !== undefined) {
@@ -895,6 +900,7 @@ function addOverallStatsToPage() {
 // adds notes to team page
 function addNotesToPage() {
   // for each data_point in this team's notes_data
+  console.log(notes_data);
   for (let data_point_index in notes_data[selected_team]) {
     // data_point is new notes to add
     let data_point = notes_data[selected_team][data_point_index];
@@ -1123,6 +1129,7 @@ function addScoutToTable(scout_name, scout_id) {
   `);
 }
 
+// puts all of the scouts onto the scouts page
 function populateScouts() {
   let stand_keys = Object.keys(stand_data);
   for (let team_id in stand_keys) {
@@ -1144,6 +1151,103 @@ function populateScouts() {
       }
     }
   }
+}
+
+/********************************************/
+/*              RANKINGS PAGE               */
+/********************************************/
+/*               GAME SPECIFIC              */
+/********************************************/
+
+// adds a specific team to a table on the ranking page
+function addTeamToRankingTable(team_num, score, rank) {
+  $("#ranking-row-" + rank).append(`
+    <td><strong>` + team_num + `</strong> (` + score + `)</td>
+  `);
+}
+
+// creates a ranking row for the table
+function addRankingRow(rank) {
+  $(".team-rankings-table").append(`
+    <tr id="ranking-row-` + rank + `">
+      <td>` + (parseInt(rank) + 1) + `</td>
+    </tr>
+  `);
+}
+
+// creates the ranking table
+function addRankingsToPage() {
+  // creates a row for each team
+  for (let team_id in teams) { addRankingRow(team_id); }
+  addCategoryToRankings(hatchTest);
+  addCategoryToRankings(cargoTest);
+  addCategoryToRankings(cargoHatchTest);
+  addCategoryToRankings(defenseTest);
+}
+
+// adds a category to the rankingTable
+function addCategoryToRankings(categoryTest) {
+  // an array of arrays of team numbers and scores
+  let teamsAndScores = sortTeamsByCategory(categoryTest);
+  for (let team_id in teamsAndScores) {
+    let data = teamsAndScores[team_id];
+    // adds a team to the table given their team name, score, and rank
+    addTeamToRankingTable(data[0], data[1], team_id);
+  }
+}
+
+// sorts all teams by a category
+function sortTeamsByCategory(categoryTest) {
+  let teamsAndScores = []
+  for (let team_id in teams) {
+    let team_num = teams[team_id];
+    teamsAndScores.push([parseInt(team_num), categoryTest(team_num)]);
+  }
+  teamsAndScores = teamsAndScores.sort((a, b) => b[1] - a[1]);
+  return teamsAndScores;
+}
+
+// calculates the median number of hatches for a team
+function hatchTest(team) {
+  // data about the team's scores
+  let team_scores = calculateScores(team);
+  // median number of hatches per match
+  let hatch_avg = roundto100th(jStat.median(team_scores[1]));
+  return hatch_avg;
+}
+
+// calculates the median number of cargo for a team
+function cargoTest(team) {
+  // data about the team's scores
+  let team_scores = calculateScores(team);
+  // median number of cargo per match
+  let cargo_avg = roundto100th(jStat.median(team_scores[2]));
+  return cargo_avg;
+}
+
+// calculates the median number of cargo and hatches for a team
+function cargoHatchTest(team) {
+  // data about the team's scores
+  let team_scores = calculateScores(team);
+  // median number of hatches per match
+  let hatch_avg = roundto100th(jStat.median(team_scores[1]));
+  // median number of cargo per match
+  let cargo_avg = roundto100th(jStat.median(team_scores[2]));
+  return hatch_avg + cargo_avg;
+}
+
+// calculates the percentage of matches them boios play defense
+function defenseTest(team) {
+  let num_defense = 0;
+  let team_matches = stand_data[team];
+  for (let match_id in team_matches) {
+    let data_point = team_matches[match_id];
+    let played_defense = data_point["Teleop"]["Played Defense"];
+    if (played_defense == "true" || played_defense == "yes") {
+      num_defense += 1;
+    }
+  }
+  return roundto100th((num_defense*100.0)/team_matches.length);
 }
 
 /********************************************/
@@ -1910,6 +2014,8 @@ function onStart() {
   $("#myCarousel").hide();
   // puts scouts on Scouts page
   populateScouts();
+  // sets up the rankings table
+  addRankingsToPage();
 }
 
 // shows/hides sensitive info
@@ -1986,10 +2092,6 @@ $(document).ready(function() {
   $(".home-btn").click(function() {
     let name = $(this).attr("name");
     switchPages(name, undefined, undefined, 1);
-  });
-  // view scouts
-  $(".view-scouts").click(function() {
-    switchPages("scouts", undefined, undefined, 1);
   });
   // go to home page
   $(".go-to-home").click(function() {
