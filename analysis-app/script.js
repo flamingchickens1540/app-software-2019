@@ -900,7 +900,6 @@ function addOverallStatsToPage() {
 // adds notes to team page
 function addNotesToPage() {
   // for each data_point in this team's notes_data
-  console.log(notes_data);
   for (let data_point_index in notes_data[selected_team]) {
     // data_point is new notes to add
     let data_point = notes_data[selected_team][data_point_index];
@@ -1162,7 +1161,7 @@ function populateScouts() {
 // adds a specific team to a table on the ranking page
 function addTeamToRankingTable(team_num, score, rank) {
   $("#ranking-row-" + rank).append(`
-    <td><strong>` + team_num + `</strong> (` + score + `)</td>
+    <td class="ranking-team-` + team_num + `"><strong>` + team_num + `</strong> (` + score + `)</td>
   `);
 }
 
@@ -1183,6 +1182,13 @@ function addRankingsToPage() {
   addCategoryToRankings(cargoTest);
   addCategoryToRankings(cargoHatchTest);
   addCategoryToRankings(defenseTest);
+  // makes each team clickable to send them to their respective team pages
+  for (let team_id in teams) {
+    // ranking team pressed switches page
+    $(".ranking-team-" + teams[team_id]).click(function() {
+      switchPages("team", teams[team_id], undefined, 1);
+    });
+  }
 }
 
 // adds a category to the rankingTable
@@ -1679,7 +1685,7 @@ function findAvailablePicklistID() {
     }
     index++;
   }
-  console.log("Maximum picklist capacity reached.");
+  alert("Maximum picklist capacity reached.");
   return undefined;
 }
 
@@ -2133,7 +2139,6 @@ $(document).ready(function() {
       // Is a team name
       for (const number in teams) {
       	if (teams.hasOwnProperty(number)) {
-      	  console.log(teams[number], $(this).val());
       	  if ($(this).val().toLowerCase() === teams[number].toLowerCase()) {
             switchPages("team", number, undefined, 1);
       	  }
