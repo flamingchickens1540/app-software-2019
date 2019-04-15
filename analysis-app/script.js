@@ -14,7 +14,7 @@ const OUR_TEAM = "1540"; // put your team number here!
 const year = 2019;
 
 // the competition
-const comp = "2019 Pacific Northwest FIRST District Championship";
+const comp = "2019 Newton Division";
 
 // are photos currently visible?
 let photos = false;
@@ -1208,6 +1208,8 @@ function sortTeamsByCategory(categoryTest) {
   let teamsAndScores = []
   for (let team_id in teams) {
     let team_num = teams[team_id];
+    // gets rid of teams without data
+    if (!(team_num in Object.keys(stand_data))) { continue; }
     teamsAndScores.push([parseInt(team_num), categoryTest(team_num)]);
   }
   teamsAndScores = teamsAndScores.sort((a, b) => b[1] - a[1]);
