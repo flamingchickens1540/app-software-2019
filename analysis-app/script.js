@@ -96,6 +96,8 @@ let image_data = {};
 let manifest_notes = [];
 let notes_data = {};
 
+let prescout_data = {};
+
 // a list of teams, equivalent to Object.keys(team_id_to_name)
 let teams = [];
 // team numbers to a team name
@@ -114,6 +116,9 @@ function loadData() {
   loadImageData();
   // NOTES
   loadNotesData();
+  // PRESCOUTING
+  loadPrescouting("./resources/prescout.csv");
+
 }
 
 // loads data from data/stand/manifest.json
@@ -205,6 +210,27 @@ function loadNotesData() {
         notes_data[team_name].push([data_point[team_index.toString()], dp_match]);
       }
     }
+  }
+}
+
+// loads prescouting data from a csv
+function loadPrescouting(path) {
+  // confirms file exists
+  if (!fs.existsSync(path)) { return; }
+  let csv_file = fs.readFileSync(path).toString();
+  // splits file be "\n", the new line character
+  let prescout_teams = csv_file.split("\n");
+  let categories = prescout_teams.splice(0,1)[0].split(",");
+  for (let row in prescout_teams) {
+    let team_data = prescout_teams[row].split(",");
+    let team_num = team_data.splice(0,1)[0];
+    let formatted_data = {}
+    for (let data_index in team_data) {
+      let info = team_data[data_index];
+      let cat_title = categories[parseInt(data_index) + 1];
+      formatted_data[cat_title] = info;
+    }
+    prescout_data[team_num] = formatted_data;
   }
 }
 
@@ -683,6 +709,7 @@ function resetTeamPage() {
   }
   // erases pit data
   $(".tbody-pit").html("");
+  $(".tbody-pre").html("");
 }
 
 // sets up team pages for data
@@ -705,6 +732,10 @@ function setupData() {
   }
   // creates pit data button
   createButton("pit", "Pit Data", ["question", "answer"], "btn-lg btn-danger", "#team-button-div");
+  if (Object.keys(prescout_data).length !== 0) {
+    // creates prescout data button
+    createButton("pre", "Prescout", ["question", "answer"], "btn-lg btn-purple", "#team-button-div");
+  }
   // creates view matches button
   $("#team-button-div").append(`
     <button class="btn btn-lg btn-secondary" onclick="switchPages('matches', selected_team, undefined, 1)">View Matches</button>
@@ -719,6 +750,10 @@ function addData() {
   addImagesToPage();
   // adds in pit data
   addPitDataToPage();
+  // adds in prescout data
+  if (Object.keys(prescout_data).length !== 0) {
+    addPrescoutDataToPage();
+  }
   // adds in stand data
   addStandDataToPage();
   // adding average/mean/max to btn-div (non match-specific)
@@ -859,7 +894,7 @@ function addPitDataToPage() {
         // returns the response to the question
         function() {
           let answer = json[p][q];
-          // instead of showing sout id, it shows scout name
+          // instead of showing scout id, it shows scout name
           if (q == "Scout") {
             answer = scouts[answer];
           }
@@ -867,6 +902,30 @@ function addPitDataToPage() {
         }
       ]);
     });
+  }
+}
+
+// adds prescout data to the team page
+function addPrescoutDataToPage() {
+  // prescouting data
+  let prescout_data_point = prescout_data[selected_team];
+  // checks to see if prescout data point actually exists
+  if (prescout_data_point !== undefined) {
+    let questions = Object.keys(prescout_data_point);
+    for (let question_index in questions) {
+      let question = questions[question_index];
+      addButtonData("pre", question_index, [
+        // returns the question
+        function() {
+          return question;
+        },
+        // returns the response to the question
+        function() {
+          let answer = prescout_data_point[question];
+          return answer;
+        }
+      ]);
+    }
   }
 }
 
