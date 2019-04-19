@@ -1268,7 +1268,7 @@ function sortTeamsByCategory(categoryTest) {
   for (let team_id in teams) {
     let team_num = teams[team_id];
     // gets rid of teams without data
-    if (!(team_num in Object.keys(stand_data))) { continue; }
+    if (Object.keys(stand_data).indexOf(team_num) < 0) { continue; }
     teamsAndScores.push([parseInt(team_num), categoryTest(team_num)]);
   }
   teamsAndScores = teamsAndScores.sort((a, b) => b[1] - a[1]);
